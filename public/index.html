@@ -1,39 +1,91 @@
 <!doctype html>
 <html>
 <head>
-  <meta charset="utf-8">
-  <title>ToDo</title>
-  <link rel="stylesheet" href="http://twitter.github.com/bootstrap/assets/css/bootstrap.css">
-  <script src="/socket.io/socket.io.js"></script>
-  <script src="http://code.angularjs.org/angular-1.0.0.min.js"></script>
-  <style>
-    .done-true {
-      text-decoration: line-through;
-      color: grey;
-    }
-  </style>
-  <script src="/js/controllers.js"></script>
+    <meta charset="utf-8">
+    <title>ToDo</title>
+    <link rel="stylesheet" href="http://twitter.github.com/bootstrap/assets/css/bootstrap.css">
+    <link type="text/css" rel="stylesheet" href="css/index.css"/>
+    <script src="/socket.io/socket.io.js"></script>
+    <script src="https://code.angularjs.org/1.2.13/angular.min.js"></script>
+    <script type="text/javascript" src="lib/underscore/underscore.js"></script>
+    <script type="text/javascript" src="lib/acisionsdk-javascript-v1.2.0/sdk.min.js"></script>
+
+    <script src="js/index.js"></script>
+    <script src="js/connectionService.js"></script>
+    <script src="js/controllers.js"></script>
 </head>
 <body>
 
-  <div ng-app>
-    <h2>Todo</h2>
-    <div ng-controller="TodoCtrl">
-      <span>{{remaining()}} of {{todos.length}} remaining</span>
-      [ <a href="" ng-click="archive()">archive</a> ]
-      <ul class="unstyled">
-        <li ng-repeat="todo in todos">
-          <input type="checkbox" ng-model="todo.done" ng-change="change()">
-          <span class="done-{{todo.done}}">{{todo.text}}</span>
-        </li>
-      </ul>
-      <form ng-submit="addTodo()">
-        <input type="text" ng-model="todoText"  size="30"
-               placeholder="add new todo here">
-        <input class="btn-primary" type="submit" value="add">
-      </form>
+<div ng-app="todo">
+    <div ng-controller="TodoController">
+        <audio id="remote-audio"></audio>
+        <div class="login-form" ng-hide="connected">
+            <p>Sign in with your forge accout to discuss with other users.</p>
+            <label>Username</label>
+            <input type="text" ng-model="username"/>
+            <label>Password</label>
+            <input type="text" ng-model="password"/>
+            <input type="button" value="Login" ng-click="login(username, password)"/>
+        </div>
+        <div class="user-date" ng-show="connected">
+            <span>{{user.name}}</span>
+            <div class="status">
+                <label class="status-label">Available</label>
+                <input type="radio"
+                       ng-model="user.status"
+                       value='available'>
+
+                <label> Yes </label>
+                <input type="radio"
+                       ng-model="user.status"
+                       value='unavailable'>
+                <label>No</label>
+            </div>
+        </div>
+        <section>
+            <div class="users">
+                <div class="user-list-wrapper">
+                    <h2>User List</h2>
+                    <div class="user-list">
+                        <table>
+                            <tr>
+                                <th class="name">Name</th>
+                                <th class="status">Status</th>
+                                <th class="actions">Actions</th>
+                            </tr>
+                            <tr ng-repeat="user in users">
+                                <th class="name">{{user.name}}</th>
+                                <th class="status" ng-class="(user.status == 'available')? 'available':'unavailable'">{{user.status}}</th>
+                                <th class="actions"><input type="button" value="Call" ng-click="call(user.address)"/></th>
+                            </tr>
+                        </table>
+                    </div>
+                </div>
+                <div class="discussion">
+                    <textarea class="messages" ng-model="messages" readonly="readonly"></textarea>
+                    <input type="text" class="message" ng-model="message"/>
+                    <input type="button" value="Send a message to available players" ng-click="sendMessage()">
+                </div>
+            </div>
+
+            <div class="todos">
+                <h2>Todos</h2>
+                <span>{{remaining()}} of {{todos.length}} remaining</span>
+                <ul class="todo-list">
+                    <li ng-repeat="todo in todos track by todo.id">
+                        <input type="checkbox" ng-model="todo.done" ng-change="change()">
+                        <span class="done-{{todo.done}}">{{todo.text}}</span>
+                    </li>
+                </ul>
+                <form ng-submit="addTodo()">
+                    <input type="text" ng-model="todoText"  size="30"
+                           placeholder="add new todo here">
+                    <input class="btn-primary" type="submit" value="add">
+                </form>
+            </div>
+        </section>
     </div>
-  </div>
+</div>
 
 
 </body>
